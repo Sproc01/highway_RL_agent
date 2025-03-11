@@ -57,8 +57,8 @@ class Agent_DuelDQN:
 
     def load_models(self, first_path, second_path):
         '''Loads the models from the given paths'''
-        self.QNet.load_state_dict(torch.load(first_path, weights_only=True))
-        self.QNet_hat.load_state_dict(torch.load(second_path, weights_only=True))
+        self.QNet.load_state_dict(torch.load(first_path, weights_only=True, map_location=torch.device(self.device)))
+        self.QNet_hat.load_state_dict(torch.load(second_path, weights_only=True, map_location=torch.device(self.device)))
         self.QNet.eval()
         self.QNet_hat.eval()
 

@@ -7,11 +7,11 @@ import torch.nn.functional as F
 class NN_Actor(nn.Module):
     def __init__(self, input_size, output_size):
         super(NN_Actor, self).__init__()
-        self.fc1 = nn.Linear(input_size, 64)
+        self.fc1 = nn.Linear(input_size, 128)
         self.ac1 = nn.Tanh()
-        self.fc2 = nn.Linear(64, 64)
+        self.fc2 = nn.Linear(128, 128)
         self.ac2 = nn.Tanh()
-        self.fc3 = nn.Linear(64, output_size)
+        self.fc3 = nn.Linear(128, output_size)
         self.ac3 = nn.Softmax(dim=-1)
 
     def forward(self, state):
@@ -26,11 +26,11 @@ class NN_Actor(nn.Module):
 class NN_Critic(nn.Module):
     def __init__(self, input_size, output_size):
         super(NN_Critic, self).__init__()
-        self.fc1 = nn.Linear(input_size, 64)
+        self.fc1 = nn.Linear(input_size, 128)
         self.ac1 = nn.Tanh()
-        self.fc2 = nn.Linear(64, 64)
+        self.fc2 = nn.Linear(128, 128)
         self.ac2 = nn.Tanh()
-        self.fc3 = nn.Linear(64, output_size)
+        self.fc3 = nn.Linear(128, output_size)
 
     def forward(self, state):
         x = self.fc1(state)
@@ -95,10 +95,10 @@ class Agent_PPO:
 
     def load_models(self, first_path, second_path):
         '''Loads the models from the first_path (actor) and second_path (critic)'''
-        self.critic.load_state_dict(torch.load(second_path, weights_only=True))
+        self.critic.load_state_dict(torch.load(second_path, weights_only=True, map_location=torch.device(self.device)))
         self.critic.eval()
 
-        self.actor.load_state_dict(torch.load(first_path, weights_only=True))
+        self.actor.load_state_dict(torch.load(first_path, weights_only=True, map_location=torch.device(self.device)))
         self.actor.eval()
 
     def learn(self, states, actions, rewards, next_states, dones, masks):
