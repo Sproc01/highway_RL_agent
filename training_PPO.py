@@ -3,7 +3,7 @@ import highway_env
 import numpy as np
 import torch
 import random
-import agent_PPO as ag
+from agent_PPO import Agent_PPO
 import matplotlib.pyplot as plt
 from evaluate import evaluate_model
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
                       config={'action': {'type': 'DiscreteMetaAction'}, 'duration': 100, 'vehicles_count': 50})
 
   # Initialize your model
-  agent = ag.Agent_PPO(env, discount=discount, actor_rep=actor_rep, critic_rep=critic_rep, clip=clip, batch_size=batch_size)
+  agent = Agent_PPO(env, discount=discount, actor_rep=actor_rep, critic_rep=critic_rep, clip=clip, batch_size=batch_size)
 
   state, _ = env.reset()
   state = state.reshape(-1)
@@ -85,7 +85,7 @@ if __name__ == '__main__':
               torch.stack(masks))
 
       if done or truncated:
-          if episode % 5 == 0:
+          if episode % 10 == 0:
             print(f'Total T: {t} Episode Num: {episode} Episode T: {episode_steps} Return: {episode_return:.3f}, truncated: {truncated}')
 
           # Save training information and model parameters

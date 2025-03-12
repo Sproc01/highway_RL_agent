@@ -3,7 +3,7 @@ import highway_env
 import numpy as np
 import torch
 import random
-import agent_DuelDQN as ag
+from agent_DuelDQN import Agent_DuelDQN
 import matplotlib.pyplot as plt
 from evaluate import evaluate_model
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
                       config={'action': {'type': 'DiscreteMetaAction'}, 'duration': 40, 'vehicles_count': 50})
 
   # Initialize your model
-  agent = ag.Agent_DuelDQN(env, discount=discount, rep=rep, batch_size=batch_size, epsilon=epsilon)
+  agent = Agent_DuelDQN(env, discount=discount, rep=rep, batch_size=batch_size, epsilon=epsilon)
   state, _ = env.reset()
   state = state.reshape(-1)
   done, truncated = False, False

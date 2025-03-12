@@ -3,7 +3,7 @@ import highway_env
 import numpy as np
 import torch
 import random
-import agent_DQN as ag
+from agent_DQN import Agent_DQN
 import matplotlib.pyplot as plt
 from evaluate import evaluate_model
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
                       config={'action': {'type': 'DiscreteMetaAction'}, 'duration': 40, 'vehicles_count': 50})
 
   # Initialize your model
-  agent = ag.Agent_DQN(env, discount=discount, rep=rep, batch_size=batch_size, epsilon=epsilon)
+  agent = Agent_DQN(env, discount=discount, rep=rep, batch_size=batch_size, epsilon=epsilon)
   state, _ = env.reset()
   state = state.reshape(-1)
   done, truncated = False, False
@@ -83,7 +83,7 @@ if __name__ == '__main__':
       episode_return += reward
 
       if done or truncated:
-          if episode % 5 == 0:
+          if episode % 10 == 0:
             print(f'Total T: {t} Episode Num: {episode} Episode T: {episode_steps} Return: {episode_return:.3f}, truncated: {truncated}, epsilon: {epsilon}')
 
           # Save training information and model parameters

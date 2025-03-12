@@ -8,9 +8,9 @@ class NN_Actor(nn.Module):
     def __init__(self, input_size, output_size):
         super(NN_Actor, self).__init__()
         self.fc1 = nn.Linear(input_size, 128)
-        self.ac1 = nn.Tanh()
+        self.ac1 = nn.SiLU()
         self.fc2 = nn.Linear(128, 128)
-        self.ac2 = nn.Tanh()
+        self.ac2 = nn.SiLU()
         self.fc3 = nn.Linear(128, output_size)
         self.ac3 = nn.Softmax(dim=-1)
 
@@ -27,9 +27,9 @@ class NN_Critic(nn.Module):
     def __init__(self, input_size, output_size):
         super(NN_Critic, self).__init__()
         self.fc1 = nn.Linear(input_size, 128)
-        self.ac1 = nn.Tanh()
+        self.ac1 = nn.SiLU()
         self.fc2 = nn.Linear(128, 128)
-        self.ac2 = nn.Tanh()
+        self.ac2 = nn.SiLU()
         self.fc3 = nn.Linear(128, output_size)
 
     def forward(self, state):
