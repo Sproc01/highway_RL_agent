@@ -116,7 +116,7 @@ if __name__=='__main__':
     torch.manual_seed(0)
 
 # ========= RL Agent =========
-    algorithm = 'DQN'#'DuelDQN'
+    algorithm = 'DuelDQN'
     episode = 4000
     printing = True
 

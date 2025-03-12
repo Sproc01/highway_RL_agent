@@ -28,7 +28,7 @@ while episode <= 20:
     env.render()
 
     episode_return += reward
-    rewards_episode.append(episode_return)
+    rewards_episode.append(reward)
 
     if done or truncated:
         print(f'Episode Num: {episode} Episode T: {episode_steps} Return: {episode_return:.3f}, Crash: {done}')
