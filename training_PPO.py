@@ -63,7 +63,6 @@ if __name__ == '__main__':
       masks.append(mask)
       actions.append(action)
 
-      # Hint: take a look at the docs to see the difference between 'done' and 'truncated'
       next_state, reward, done, truncated, _ = env.step(action)
       next_state = next_state.reshape(-1)
 

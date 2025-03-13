@@ -54,10 +54,9 @@ if __name__ == '__main__':
       episode_steps += 1
       t += 1
 
-      # Select the action to be performed by the agent
+      # Select the action to be performed by the agent with possibility of exploration
       action = agent.act(torch.tensor(state), True)
 
-      # Hint: take a look at the docs to see the difference between 'done' and 'truncated'
       next_state, reward, done, truncated, _ = env.step(action)
       next_state = next_state.reshape(-1)
 
@@ -75,7 +74,7 @@ if __name__ == '__main__':
             torch.from_numpy(np.array(next_states)),
             torch.from_numpy(np.array(crashes)))
       
-      if t % 50:
+      if t % 50: # Update target network every 50 steps
         agent.update_target()
 
       state = next_state
@@ -129,5 +128,3 @@ if __name__ == '__main__':
   plt.ylabel('Average reward')
   plt.title('Average reward over steps')
   f.savefig('Figures/DuelDQN_training_eval_avg_reward.pdf', bbox_inches='tight')
-
-  # plt.show()

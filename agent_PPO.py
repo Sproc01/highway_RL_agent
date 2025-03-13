@@ -6,6 +6,7 @@ import torch.nn.functional as F
 
 class NN_Actor(nn.Module):
     def __init__(self, input_size, output_size):
+        '''Creates the model'''
         super(NN_Actor, self).__init__()
         self.fc1 = nn.Linear(input_size, 128)
         self.ac1 = nn.SiLU()
@@ -15,6 +16,7 @@ class NN_Actor(nn.Module):
         self.ac3 = nn.Softmax(dim=-1)
 
     def forward(self, state):
+        '''Do the prediction given the input'''
         x = self.fc1(state)
         x = self.ac1(x)
         x = self.fc2(x)
@@ -25,6 +27,7 @@ class NN_Actor(nn.Module):
 
 class NN_Critic(nn.Module):
     def __init__(self, input_size, output_size):
+        '''Creates the model'''
         super(NN_Critic, self).__init__()
         self.fc1 = nn.Linear(input_size, 128)
         self.ac1 = nn.SiLU()
@@ -33,6 +36,7 @@ class NN_Critic(nn.Module):
         self.fc3 = nn.Linear(128, output_size)
 
     def forward(self, state):
+        '''Do the prediction given the input'''
         x = self.fc1(state)
         x = self.ac1(x)
         x = self.fc2(x)
@@ -73,19 +77,11 @@ class Agent_PPO:
         state = state.to(self.device)
         with torch.no_grad():
             probs = self.actor(state)
-            if torch.isnan(probs).any() or torch.isinf(probs).any():
-                print('Invalid values detected in probabilities output')
             sum_probs = torch.sum(probs)
-            if torch.any(torch.isclose(sum_probs, torch.tensor(0.0), atol=1e-8)):
-                print('Warning: Sum of probabilities output is close to zero:', sum_probs)
             probs = probs * self.mask()
             sum_probs = torch.sum(probs)
             probs = probs / (sum_probs + epsilon)
-            if torch.isnan(probs).any() or torch.isinf(probs).any():
-                print('Invalid values detected in probabilities')
-                action = self.env.unwrapped.get_available_actions()[0]
-            else:
-                action = torch.multinomial(probs, 1).item()
+            action = torch.multinomial(probs, 1).item()
             return action
 
     def save_models(self, episode, path=''):

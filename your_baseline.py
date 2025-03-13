@@ -10,17 +10,20 @@ import highway_env
 # 4: 'SLOWER'
 def my_baseline(env, state):
     '''Baseline agent that drives straight and changes lanes when the ego vehicle is behind another vehicle'''
-    epsilon_x = 0.2
-    epsilon_y = 0.009
+    # Define the epsilon values
+    EPSILON_X = 0.2
+    EPSILON_Y = 0.009
+
+
     actions = env.unwrapped.get_available_actions()
     state = state[1:, 1:3]
     state_x = state[:, 0]
     state_y = state[:, 1]
     for i in range(len(state_x)):
-        if abs(state_x[i]) < epsilon_x: # near along the x axis
+        if abs(state_x[i]) < EPSILON_X: # near along the x axis
             if state_x[i] > 0: # in front of the ego
-                if abs(state_y[i]) <= epsilon_y: # same in the y axis so it is in front
-                    if 0 in actions: # change lane
+                if abs(state_y[i]) <= EPSILON_Y: # same in the y axis so it is in front
+                    if 0 in actions: # change lane 0 or 2 must be available because 3 lanes
                         return 0
                     else:
                         return 2

@@ -20,7 +20,7 @@ if __name__ == '__main__':
   discount = 0.9
 
   MAX_EPISODES = 4000
-  env_name = 'highway-fast-v0'  # We use the 'fast' env just for faster training, if you want you can use 'highway-v0'
+  env_name = 'highway-fast-v0'
 
   env = gymnasium.make(env_name,
                       config={'action': {'type': 'DiscreteMetaAction'}, 'duration': 40, 'vehicles_count': 50})
@@ -55,11 +55,10 @@ if __name__ == '__main__':
       episode_steps += 1
       t += 1
 
-      # Select the action to be performed by the agent
+      # Select the action to be performed by the agent with possibility of exploration
       action = agent.act(torch.tensor(state), True)
       actions.append([action])
 
-      # Hint: take a look at the docs to see the difference between 'done' and 'truncated'
       next_state, reward, done, truncated, _ = env.step(action)
       next_state = next_state.reshape(-1)
 
@@ -75,9 +74,8 @@ if __name__ == '__main__':
               torch.from_numpy(np.array(rewards)),
               torch.from_numpy(np.array(next_states)),
               torch.from_numpy(np.array(crashes)))
-      if t % 50:
+      if t % 50: # update target network every 50 steps
         agent.update_target()
-
 
       state = next_state
       episode_return += reward

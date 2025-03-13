@@ -5,6 +5,7 @@ import torch.nn.functional as F
 
 class NN_DuelQ(nn.Module):
     def __init__(self, input_size, output_size):
+        '''Creates the model'''
         super(NN_DuelQ, self).__init__()
         self.fc1 = nn.Linear(input_size, 128)
         self.ac1 = nn.SiLU()
@@ -14,6 +15,7 @@ class NN_DuelQ(nn.Module):
         self.A = nn.Linear(128, output_size)
 
     def forward(self, state):
+        '''Do the prediction given the input'''
         x = self.fc1(state)
         x = self.ac1(x)
         x = self.fc2(x)
