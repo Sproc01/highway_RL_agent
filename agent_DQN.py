@@ -31,10 +31,10 @@ class Agent_DQN:
         self.batch_size = batch_size
         self.epsilon = epsilon
 
-        self.QNet = NN_Q(env.observation_space.shape[0] * env.observation_space.shape[1] + 1, 1)
+        self.QNet = NN_Q(env.observation_space.shape[0] * env.observation_space.shape[1], env.action_space.n)
         self.QNet_optimizer = torch.optim.Adam(self.QNet.parameters(), lr=5e-4)
 
-        self.QNet_hat = NN_Q(env.observation_space.shape[0] * env.observation_space.shape[1] + 1, 1)
+        self.QNet_hat = NN_Q(env.observation_space.shape[0] * env.observation_space.shape[1], env.action_space.n)
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.QNet.to(self.device)
@@ -42,15 +42,15 @@ class Agent_DQN:
 
     def act(self, state, exploration=False):
         '''Returns the action to take based on the given state'''
-        q_act = {}
-        state = state.to(self.device)
+        if exploration and np.random.rand() < self.epsilon:
+            return self.env.action_space.sample()
+        
         with torch.no_grad():
-            for i in self.env.unwrapped.get_available_actions():
-                st = torch.cat((state, torch.tensor([i]).to(self.device))).to(self.device)
-                q_act[i] = self.QNet(st).item()
-            if np.random.rand() < self.epsilon and exploration:
-                return np.random.choice(list(q_act.keys()))
-            return max(q_act, key=q_act.get)
+            if state.dim() == 1:
+                state = state.unsqueeze(0)
+            state = state.to(self.device)
+            q_values = self.QNet(state)
+            return torch.argmax(q_values, dim=1).item()
 
     def save_models(self, episode, path=''):
         '''Saves the models to the given path'''
@@ -59,8 +59,8 @@ class Agent_DQN:
 
     def load_models(self, first_path, second_path):
         '''Loads the models from the given paths'''
-        self.QNet.load_state_dict(torch.load(first_path, weights_only=True, map_location=torch.device(self.device)))
-        self.QNet_hat.load_state_dict(torch.load(second_path, weights_only=True, map_location=torch.device(self.device)))
+        self.QNet.load_state_dict(torch.load(first_path, map_location=torch.device(self.device)))
+        self.QNet_hat.load_state_dict(torch.load(second_path, map_location=torch.device(self.device)))
         self.QNet.eval()
         self.QNet_hat.eval()
 
@@ -73,29 +73,19 @@ class Agent_DQN:
         dones = dones.to(self.device)
         for i in range(self.rep):
             indexes = torch.randperm(states.shape[0])[:min(self.batch_size, states.shape[0])].to(self.device)
-            states = states[indexes]
-            actions = actions[indexes]
-            rewards = rewards[indexes]
-            next_states = next_states[indexes]
-            dones = dones[indexes]
-            target = torch.empty([next_states.shape[0], 1]).to(self.device)
             with torch.no_grad():
-                for j in range(next_states.shape[0]):
-                    if dones[j]:
-                      target[j] = rewards[j].float()
-                    else:
-                      next_actions = self.act(next_states[j])
-                      target[j] = rewards[j].float() + self.discount * self.QNet_hat(torch.cat((next_states[j], torch.tensor([next_actions]).to(self.device))))
-            input = torch.hstack([states, actions]).to(self.device)
+                best_actions = torch.argmax(self.QNet(next_states[indexes]), dim=1, keepdim=True)
+                Q_targets_next = self.QNet_hat(next_states[indexes]).gather(1, best_actions).squeeze(1)
+                Q_targets = rewards[indexes].float() + (self.discount * Q_targets_next * torch.logical_not(dones[indexes]))
             self.QNet_optimizer.zero_grad()
-            output = self.QNet(input)
-            loss = F.mse_loss(output, target).to(torch.float32)
+            Q_expected = self.QNet(states[indexes]).gather(1, actions[indexes].unsqueeze(1)).squeeze(1)
+            loss = F.mse_loss(Q_expected, Q_targets).to(torch.float32)
             loss.backward()
             self.QNet_optimizer.step()
     
     def decrease_epsilon(self):
         '''Decreases the epsilon value'''
-        self.epsilon = max(self.epsilon * 0.9, 0.1)
+        self.epsilon = max(self.epsilon * 0.9, 0.05)
         return self.epsilon
     
     def update_target(self):

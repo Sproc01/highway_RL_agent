@@ -81,6 +81,8 @@ class Agent_PPO:
             probs = probs * self.mask()
             sum_probs = torch.sum(probs)
             probs = probs / (sum_probs + epsilon)
+            if torch.isnan(probs).any() or torch.isinf(probs).any():
+                print(probs, sum_probs)
             action = torch.multinomial(probs, 1).item()
             return action
 
@@ -91,10 +93,10 @@ class Agent_PPO:
 
     def load_models(self, first_path, second_path):
         '''Loads the models from the first_path (actor) and second_path (critic)'''
-        self.critic.load_state_dict(torch.load(second_path, weights_only=True, map_location=torch.device(self.device)))
+        self.critic.load_state_dict(torch.load(second_path, map_location=torch.device(self.device)))
         self.critic.eval()
 
-        self.actor.load_state_dict(torch.load(first_path, weights_only=True, map_location=torch.device(self.device)))
+        self.actor.load_state_dict(torch.load(first_path, map_location=torch.device(self.device)))
         self.actor.eval()
 
     def learn(self, states, actions, rewards, next_states, dones, masks):
@@ -118,38 +120,26 @@ class Agent_PPO:
 
         for j in range(self.actor_rep):
             indexes = torch.randperm(states.shape[0])[:min(self.batch_size, states.shape[0])].to(self.device)
-            initial_probs = initial_probs[indexes]
-            td_err = td_err[indexes]
-            states = states[indexes]
-            actions = actions[indexes]
-            rewards = rewards[indexes]
-            next_states = next_states[indexes]
-            dones = dones[indexes]
-            masks = masks[indexes]
             self.actor_optimizer.zero_grad()
-            output = self.actor(states)
-            output = output * masks
+            output = self.actor(states[indexes])
+            output = output * masks[indexes]
             output = output / (torch.sum(output, dim = -1, keepdim=True) + epsilon)
-            sum_selected = torch.sum(output * actions, dim=-1, keepdim=True)
-            sum_initial = torch.sum(initial_probs * actions, dim=-1, keepdim=True)
+            sum_selected = torch.sum(output * actions[indexes], dim=-1, keepdim=True)
+            sum_initial = torch.sum(initial_probs[indexes] * actions[indexes], dim=-1, keepdim=True)
             imp_s = sum_selected / (sum_initial + epsilon)
-            lossActor = torch.min(imp_s * td_err, td_err * torch.clamp(imp_s, 1 - self.clip, 1 + self.clip))
+            lossActor = torch.min(imp_s * td_err[indexes], td_err[indexes] * torch.clamp(imp_s, 1 - self.clip, 1 + self.clip))
             lossActor = torch.mean(-lossActor)
             lossActor.backward()
             self.actor_optimizer.step()
 
         for j in range(self.critic_rep):
             indexes = torch.randperm(states.shape[0])[:min(self.batch_size, states.shape[0])].to(self.device)
-            states = states[indexes]
-            rewards = rewards[indexes]
-            next_states = next_states[indexes]
-            dones = dones[indexes]
             with torch.no_grad():
-                new_val = self.critic(next_states)
+                new_val = self.critic(next_states[indexes])
             new_val = new_val.reshape(-1)
-            future_reward = rewards.float() + self.discount * new_val * torch.logical_not(dones)
+            future_reward = rewards[indexes].float() + self.discount * new_val * torch.logical_not(dones[indexes])
             self.critic_optimizer.zero_grad()
-            val = self.critic(states)
+            val = self.critic(states[indexes])
             val = val.reshape(-1)
             lossCritic = F.mse_loss(val, future_reward)
             lossCritic.backward()

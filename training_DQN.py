@@ -48,7 +48,6 @@ if __name__ == '__main__':
   history_ev_ret = []
   history_ev_rew = []
 
-
   t = 0
   # Training loop
   while episode <= MAX_EPISODES:
@@ -57,7 +56,7 @@ if __name__ == '__main__':
 
       # Select the action to be performed by the agent with possibility of exploration
       action = agent.act(torch.tensor(state), True)
-      actions.append([action])
+      actions.append(action)
 
       next_state, reward, done, truncated, _ = env.step(action)
       next_state = next_state.reshape(-1)

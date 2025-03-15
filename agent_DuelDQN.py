@@ -16,13 +16,15 @@ class NN_DuelQ(nn.Module):
 
     def forward(self, state):
         '''Do the prediction given the input'''
+        if state.dim() == 1:
+            state = state.unsqueeze(0)
         x = self.fc1(state)
         x = self.ac1(x)
         x = self.fc2(x)
         x = self.ac2(x)
         V = self.V(x)
         A = self.A(x)
-        Q = V + (A - A.mean(dim=0, keepdim=True))
+        Q = V + (A - A.mean(dim=1, keepdim=True))
         return Q
 
 class Agent_DuelDQN:
@@ -45,12 +47,15 @@ class Agent_DuelDQN:
 
     def act(self, state, exploration=False):
         '''Returns the action to take based on the given state'''
+        if np.random.rand() < self.epsilon and exploration:
+            return self.env.action_space.sample()
+        
         with torch.no_grad():
+            if state.dim() == 1:
+                state = state.unsqueeze(0)
             state = state.to(self.device)
             q = self.QNet(state)
-            if np.random.rand() < self.epsilon and exploration:
-                return np.random.choice(q.shape[0])
-            return torch.argmax(q).item()
+            return torch.argmax(q, dim=1).item()
 
     def save_models(self, episode, path=''):
         '''Saves the models to the given path'''
@@ -59,8 +64,8 @@ class Agent_DuelDQN:
 
     def load_models(self, first_path, second_path):
         '''Loads the models from the given paths'''
-        self.QNet.load_state_dict(torch.load(first_path, weights_only=True, map_location=torch.device(self.device)))
-        self.QNet_hat.load_state_dict(torch.load(second_path, weights_only=True, map_location=torch.device(self.device)))
+        self.QNet.load_state_dict(torch.load(first_path, map_location=torch.device(self.device)))
+        self.QNet_hat.load_state_dict(torch.load(second_path, map_location=torch.device(self.device)))
         self.QNet.eval()
         self.QNet_hat.eval()
 
@@ -73,17 +78,12 @@ class Agent_DuelDQN:
         dones = dones.to(self.device)
         for i in range(self.rep):
             indexes = torch.randperm(states.shape[0])[:min(self.batch_size, states.shape[0])].to(self.device)
-            states = states[indexes]
-            actions = actions[indexes]
-            rewards = rewards[indexes]
-            next_states = next_states[indexes]
-            dones = dones[indexes]
             self.QNet_optimizer.zero_grad()
             with torch.no_grad():
-                best_actions = torch.argmax(self.QNet(next_states), dim=1, keepdim=True)
-                Q_targets_next = self.QNet_hat(next_states).gather(1, best_actions).squeeze(1)
-                Q_targets = rewards.float() + (self.discount * Q_targets_next * torch.logical_not(dones))
-            Q_expected = self.QNet(states).gather(1, actions.unsqueeze(1)).squeeze(1)
+                best_actions = torch.argmax(self.QNet(next_states[indexes]), dim=1, keepdim=True)
+                Q_targets_next = self.QNet_hat(next_states[indexes]).gather(1, best_actions).squeeze(1)
+                Q_targets = rewards[indexes].float() + (self.discount * Q_targets_next * torch.logical_not(dones[indexes]))
+            Q_expected = self.QNet(states[indexes]).gather(1, actions[indexes].unsqueeze(1)).squeeze(1)
             Q_expected = Q_expected.reshape((-1,))
             loss = F.mse_loss(Q_expected, Q_targets)
             loss.backward()
