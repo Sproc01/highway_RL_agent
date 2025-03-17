@@ -82,7 +82,8 @@ class Agent_PPO:
             sum_probs = torch.sum(probs)
             probs = probs / (sum_probs + epsilon)
             if torch.isnan(probs).any() or torch.isinf(probs).any():
-                print(probs, sum_probs)
+                print("Error")
+                return self.env.action_space.sample()
             action = torch.multinomial(probs, 1).item()
             return action
 

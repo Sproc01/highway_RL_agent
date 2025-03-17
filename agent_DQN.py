@@ -7,11 +7,11 @@ class NN_Q(nn.Module):
     def __init__(self, input_size, output_size):
         '''Creates the model'''
         super(NN_Q, self).__init__()
-        self.fc1 = nn.Linear(input_size, 64)
+        self.fc1 = nn.Linear(input_size, 128)
         self.ac1 = nn.SiLU()
-        self.fc2 = nn.Linear(64, 64)
+        self.fc2 = nn.Linear(128, 128)
         self.ac2 = nn.SiLU()
-        self.fc3 = nn.Linear(64, output_size)
+        self.fc3 = nn.Linear(128, output_size)
 
     def forward(self, state):
         '''Do the prediction given the input'''
@@ -23,7 +23,7 @@ class NN_Q(nn.Module):
         return x
 
 class Agent_DQN:
-    def __init__(self, env, discount=0.9, rep=20, batch_size=100, epsilon=0.1):
+    def __init__(self, env, discount=0.9, rep=15, batch_size=100, epsilon=0.5):
         '''Initializes the DQN agent'''
         self.env = env
         self.discount = discount
