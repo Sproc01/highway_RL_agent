@@ -2,7 +2,7 @@
 
 This is the repository for the Autonomous Driving project of the Reinforcement Learning course.
 
-The goal of the agents will be to drive an Autonomous Vehicle through an highway, taking into consideration the presence of other vehicles. For this project it is needed the [HighwayEnv](https://github.com/Farama-Foundation/HighwayEnv) library, which can be installed very easily: https://highway-env.farama.org/installation/. 
+The goal of the agents will be to drive an Autonomous Vehicle through an highway, taking into consideration the presence of other vehicles. For this project it is needed the [HighwayEnv](https://github.com/Farama-Foundation/HighwayEnv) library, which can be installed very easily: [Installation](https://highway-env.farama.org/installation/). 
 
 <img src="https://raw.githubusercontent.com/eleurent/highway-env/gh-media/docs/media/highway_fast_dqn.gif"/>
 
@@ -46,4 +46,4 @@ In this project, the best RL agent is compared against two baselines:
 Three RL agents are defined, for detail look into `agent_DQN.py`, `agent_DuelDQN.py`, `agent_PPO.py`.
 
 ## Report
-For a detailed description of the project look in TODO
+For a detailed description of the project look in `RL_report.pdf`.
