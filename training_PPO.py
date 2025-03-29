@@ -14,7 +14,7 @@ if __name__ == '__main__':
   torch.manual_seed(0)
 
   # hyperparameters
-  batch_size = 32
+  batch_size = 24
   clip = 0.2
   critic_rep = 10
   actor_rep = 10
@@ -24,7 +24,7 @@ if __name__ == '__main__':
   env_name = 'highway-fast-v0'  # We use the 'fast' env just for faster training, if you want you can use 'highway-v0'
 
   env = gymnasium.make(env_name,
-                      config={'action': {'type': 'DiscreteMetaAction'}, 'duration': 100, 'vehicles_count': 50})
+                      config={'action': {'type': 'DiscreteMetaAction'}, 'duration': 40, 'vehicles_count': 50})
 
   # Initialize your model
   agent = Agent_PPO(env, discount=discount, actor_rep=actor_rep, critic_rep=critic_rep, clip=clip, batch_size=batch_size)
@@ -76,14 +76,15 @@ if __name__ == '__main__':
       state = next_state
       episode_return += reward
 
-      agent.learn(torch.from_numpy(np.array(states)),
+      if done or truncated:
+          # update given the entire trajectory
+          agent.learn(torch.from_numpy(np.array(states)),
               torch.from_numpy(np.array(actions)),
               torch.from_numpy(np.array(rewards)),
               torch.from_numpy(np.array(next_states)),
               torch.from_numpy(np.array(crashes)),
               torch.stack(masks))
 
-      if done or truncated:
           if episode % 10 == 0:
             print(f'Total T: {t} Episode Num: {episode} Episode T: {episode_steps} Return: {episode_return:.3f}, truncated: {truncated}')
 

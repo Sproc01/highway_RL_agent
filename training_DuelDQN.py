@@ -74,7 +74,7 @@ if __name__ == '__main__':
             torch.from_numpy(np.array(next_states)),
             torch.from_numpy(np.array(crashes)))
       
-      if t % 50: # Update target network every 50 steps
+      if t % 25 == 0: # Update target network every 25 steps
         agent.update_target()
 
       state = next_state

@@ -116,7 +116,7 @@ if __name__=='__main__':
     torch.manual_seed(0)
 
 # ========= RL Agent =========
-    algorithm = 'PPO'
+    algorithm = 'DuelDQN' #'DQN' #'PPO'
     episode = 4000
     printing = True
 
@@ -141,23 +141,23 @@ if __name__=='__main__':
     plt.show()
 
 # ========= baseline =========
-    print('Using baseline...')
+    # print('Using baseline...')
 
-    res = evaluate_baseline()
+    # res = evaluate_baseline()
 
-    f = plt.figure()
-    plt.plot(res[0])
-    plt.xlabel('Episodes')
-    plt.ylabel('Returns')
-    plt.title(f'Return over episodes using baseline')
-    f.savefig(f'Figures/Return_over_episode_baseline.pdf', bbox_inches='tight')
+    # f = plt.figure()
+    # plt.plot(res[0])
+    # plt.xlabel('Episodes')
+    # plt.ylabel('Returns')
+    # plt.title(f'Return over episodes using baseline')
+    # f.savefig(f'Figures/Return_over_episode_baseline.pdf', bbox_inches='tight')
 
-    f = plt.figure()
-    plt.plot(res[1])
-    plt.xlabel('Episodes')
-    plt.ylabel('Average reward')
-    plt.title(f'Average reward over episode using baseline')
-    f.savefig(f'Figures/Average_reward_over_episode_baseline.pdf', bbox_inches='tight')
+    # f = plt.figure()
+    # plt.plot(res[1])
+    # plt.xlabel('Episodes')
+    # plt.ylabel('Average reward')
+    # plt.title(f'Average reward over episode using baseline')
+    # f.savefig(f'Figures/Average_reward_over_episode_baseline.pdf', bbox_inches='tight')
 
-    plt.show()
+    # plt.show()
 

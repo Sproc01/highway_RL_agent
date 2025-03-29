@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 class NN_Actor(nn.Module):
     def __init__(self, input_size, output_size):
         '''Creates the model'''
@@ -73,17 +72,13 @@ class Agent_PPO:
 
     def act(self, state):
         '''Returns the action to take based on the state'''
-        epsilon = 1e-8
         state = state.to(self.device)
         with torch.no_grad():
             probs = self.actor(state)
             sum_probs = torch.sum(probs)
             probs = probs * self.mask()
             sum_probs = torch.sum(probs)
-            probs = probs / (sum_probs + epsilon)
-            if torch.isnan(probs).any() or torch.isinf(probs).any():
-                print("Error")
-                return self.env.action_space.sample()
+            probs = probs / (sum_probs)
             action = torch.multinomial(probs, 1).item()
             return action
 
@@ -102,7 +97,6 @@ class Agent_PPO:
 
     def learn(self, states, actions, rewards, next_states, dones, masks):
         '''Updates the actor and critic networks'''
-        epsilon = 1e-8
         states = states.to(self.device)
         rewards = rewards.to(self.device)
         next_states = next_states.to(self.device)
@@ -112,7 +106,7 @@ class Agent_PPO:
             actions =  F.one_hot(actions.to(torch.int64), num_classes=self.env.action_space.n).to(self.device)
             probs = self.actor(states)
             probs = probs * masks
-            probs = probs / (torch.sum(probs, dim = -1, keepdim=True) + epsilon)
+            probs = probs / (torch.sum(probs, dim = -1, keepdim=True))
             initial_probs = torch.sum(probs * actions, dim=-1, keepdim=True)
             val = self.critic(states)
             new_val = self.critic(next_states)
@@ -124,10 +118,10 @@ class Agent_PPO:
             self.actor_optimizer.zero_grad()
             output = self.actor(states[indexes])
             output = output * masks[indexes]
-            output = output / (torch.sum(output, dim = -1, keepdim=True) + epsilon)
+            output = output / (torch.sum(output, dim = -1, keepdim=True))
             sum_selected = torch.sum(output * actions[indexes], dim=-1, keepdim=True)
             sum_initial = torch.sum(initial_probs[indexes] * actions[indexes], dim=-1, keepdim=True)
-            imp_s = sum_selected / (sum_initial + epsilon)
+            imp_s = sum_selected / (sum_initial)
             lossActor = torch.min(imp_s * td_err[indexes], td_err[indexes] * torch.clamp(imp_s, 1 - self.clip, 1 + self.clip))
             lossActor = torch.mean(-lossActor)
             lossActor.backward()
