@@ -26,10 +26,10 @@ def evaluate_model(episode_load, type_alg, printing=False):
         agent.load_models(f'Models/Duel/Duel_QNet_model_{episode_load}.pt', f'Models/Duel/Duel_QNetHat_model_{episode_load}.pt')
     elif type_alg == 'DQN':
         agent = Agent_DQN(env=env)
-        agent.load_models(f'models/DQN/QNet_model_{episode_load}.pt', f'models/DQN/QNetHat_model_{episode_load}.pt')
+        agent.load_models(f'Models/DQN/QNet_model_{episode_load}.pt', f'Models/DQN/QNetHat_model_{episode_load}.pt')
     elif type_alg == 'PPO':
         agent = Agent_PPO(env=env)
-        agent.load_models(f'models/PPO/PPO_actor_model_{episode_load}.pt', f'models/PPO/PPO_critic_model_{episode_load}.pt')
+        agent.load_models(f'Models/PPO/PPO_actor_model_{episode_load}.pt', f'Models/PPO/PPO_critic_model_{episode_load}.pt')
     else:
         raise ValueError('Type of algorithm non supported')
     state, _ = env.reset()
@@ -118,7 +118,7 @@ if __name__=='__main__':
     torch.manual_seed(0)
 
 # ========= RL Agent =========
-    algorithm = 'DuelDQN' #'DQN' #'PPO'
+    algorithm = 'DuelDQN'
     episode = 4000
     printing = True
 
