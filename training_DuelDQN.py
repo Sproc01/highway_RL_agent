@@ -20,13 +20,14 @@ if __name__ == '__main__':
   discount = 0.9
 
   MAX_EPISODES = 4000
-  env_name = 'highway-fast-v0' 
+  env_name = 'highway-fast-v0' # 'fast' env just for faster training
 
   env = gymnasium.make(env_name,
                       config={'action': {'type': 'DiscreteMetaAction'}, 'duration': 40, 'vehicles_count': 50})
 
-  # Initialize your model
+  # Initialize the agent
   agent = Agent_DuelDQN(env, discount=discount, rep=rep, batch_size=batch_size, epsilon=epsilon)
+
   state, _ = env.reset()
   state = state.reshape(-1)
   done, truncated = False, False
@@ -60,7 +61,7 @@ if __name__ == '__main__':
       next_state, reward, done, truncated, _ = env.step(action)
       next_state = next_state.reshape(-1)
 
-      # Store transition in memory and train your model
+      # Store transition in memory
       rewards.append(reward)
       states.append(state)
       rewards_plot.append(reward)
@@ -68,6 +69,7 @@ if __name__ == '__main__':
       crashes.append(done)
       actions.append(action)
 
+      # Training the model
       agent.learn(torch.from_numpy(np.array(states)),
             torch.from_numpy(np.array(actions)),
             torch.from_numpy(np.array(rewards)),
@@ -97,7 +99,7 @@ if __name__ == '__main__':
             print(f'Average reward evaluation: {history_ev_rew[-1]}')
             print(f'Average return evaluation: {history_ev_ret[-1]}')
           
-          if episode % 100 == 0:
+          if episode % 100 == 0: # Decrease the epsilon that regulates the exploration
             epsilon = agent.decrease_epsilon()
 
           state, _ = env.reset()
@@ -107,7 +109,7 @@ if __name__ == '__main__':
           episode_return = 0
   env.close()
 
-  # Plots
+# ========= Plotting =========
   f = plt.figure()
   plt.plot(history)
   plt.xlabel('Episode')

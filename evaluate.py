@@ -11,6 +11,8 @@ from your_baseline import my_baseline
 
 
 def evaluate_model(episode_load, type_alg, printing=False):
+    '''Evaluate the output of the given algorithm after the number of episode specified, 
+    if you want to see the simulation and the information pass True as third parameter'''
     env_name = 'highway-v0'
     if printing:
         env = gymnasium.make(env_name,
@@ -120,7 +122,7 @@ if __name__=='__main__':
     episode = 4000
     printing = True
 
-# ========= Evaluation =========
+# ========= Evaluation Output Algorithm =========
     print(f'Using the output of {algorithm} after {episode}...')
     res = evaluate_model(episode, algorithm, printing)
 
@@ -140,24 +142,24 @@ if __name__=='__main__':
 
     plt.show()
 
-# ========= baseline =========
-    # print('Using baseline...')
+# ========= Evaluation Baseline =========
+    print('Using baseline...')
 
-    # res = evaluate_baseline()
+    res = evaluate_baseline()
 
-    # f = plt.figure()
-    # plt.plot(res[0])
-    # plt.xlabel('Episodes')
-    # plt.ylabel('Returns')
-    # plt.title(f'Return over episodes using baseline')
-    # f.savefig(f'Figures/Return_over_episode_baseline.pdf', bbox_inches='tight')
+    f = plt.figure()
+    plt.plot(res[0])
+    plt.xlabel('Episodes')
+    plt.ylabel('Returns')
+    plt.title(f'Return over episodes using baseline')
+    f.savefig(f'Figures/Return_over_episode_baseline.pdf', bbox_inches='tight')
 
-    # f = plt.figure()
-    # plt.plot(res[1])
-    # plt.xlabel('Episodes')
-    # plt.ylabel('Average reward')
-    # plt.title(f'Average reward over episode using baseline')
-    # f.savefig(f'Figures/Average_reward_over_episode_baseline.pdf', bbox_inches='tight')
+    f = plt.figure()
+    plt.plot(res[1])
+    plt.xlabel('Episodes')
+    plt.ylabel('Average reward')
+    plt.title(f'Average reward over episode using baseline')
+    f.savefig(f'Figures/Average_reward_over_episode_baseline.pdf', bbox_inches='tight')
 
-    # plt.show()
+    plt.show()
 

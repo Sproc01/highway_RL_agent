@@ -20,13 +20,14 @@ if __name__ == '__main__':
   discount = 0.9
 
   MAX_EPISODES = 4000
-  env_name = 'highway-fast-v0'
+  env_name = 'highway-fast-v0' # 'fast' env just for faster training
 
   env = gymnasium.make(env_name,
                       config={'action': {'type': 'DiscreteMetaAction'}, 'duration': 40, 'vehicles_count': 50})
 
-  # Initialize your model
+  # Initialize the agent
   agent = Agent_DQN(env, discount=discount, rep=rep, batch_size=batch_size, epsilon=epsilon)
+
   state, _ = env.reset()
   state = state.reshape(-1)
   done, truncated = False, False
@@ -61,19 +62,21 @@ if __name__ == '__main__':
       next_state, reward, done, truncated, _ = env.step(action)
       next_state = next_state.reshape(-1)
 
-      # Store transition in memory and train your model
+      # Store transition in memory
       rewards.append(reward)
       rewards_plot.append(reward)
       states.append(state)
       next_states.append(next_state)
       crashes.append(done)
 
+      # Training the model
       agent.learn(torch.from_numpy(np.array(states)),
               torch.from_numpy(np.array(actions)),
               torch.from_numpy(np.array(rewards)),
               torch.from_numpy(np.array(next_states)),
               torch.from_numpy(np.array(crashes)))
-      if t % 25 == 0: # update target network every 25 steps
+      
+      if t % 25 == 0: # Update target network every 25 steps
         agent.update_target()
 
       state = next_state
@@ -86,6 +89,7 @@ if __name__ == '__main__':
           # Save training information and model parameters
           history.append(np.mean(rewards_plot))
           rewards_plot = []
+
           if episode % 250 == 0:
             agent.save_models(episode, 'Models/DQN/')
             print('Evaluating model..')
@@ -95,7 +99,7 @@ if __name__ == '__main__':
             print(f'Average reward evaluation: {history_ev_rew[-1]}')
             print(f'Average return evaluation: {history_ev_ret[-1]}')
 
-          if episode % 100 == 0:
+          if episode % 100 == 0: # Decrease the epsilon that regulates the exploration
             epsilon = agent.decrease_epsilon()
 
           state, _ = env.reset()
@@ -105,7 +109,7 @@ if __name__ == '__main__':
           episode_return = 0
   env.close()
 
-  # Plot the returns
+# ========= Plotting =========
   f = plt.figure()
   plt.plot(history)
   plt.xlabel('Episode')

@@ -21,12 +21,12 @@ if __name__ == '__main__':
   discount = 0.9
 
   MAX_EPISODES = 4000
-  env_name = 'highway-fast-v0'  # We use the 'fast' env just for faster training, if you want you can use 'highway-v0'
+  env_name = 'highway-fast-v0'  # 'fast' env just for faster training
 
   env = gymnasium.make(env_name,
                       config={'action': {'type': 'DiscreteMetaAction'}, 'duration': 40, 'vehicles_count': 50})
 
-  # Initialize your model
+  # Initialize the agent
   agent = Agent_PPO(env, discount=discount, actor_rep=actor_rep, critic_rep=critic_rep, clip=clip, batch_size=batch_size)
 
   state, _ = env.reset()
@@ -66,7 +66,7 @@ if __name__ == '__main__':
       next_state, reward, done, truncated, _ = env.step(action)
       next_state = next_state.reshape(-1)
 
-      # Store transition in memory and train your model
+      # Store transition in memory
       rewards.append(reward)
       rewards_plot.append(reward)
       states.append(state)
@@ -77,7 +77,7 @@ if __name__ == '__main__':
       episode_return += reward
 
       if done or truncated:
-          # update given the entire trajectory
+          # Update given the entire trajectory
           agent.learn(torch.from_numpy(np.array(states)),
               torch.from_numpy(np.array(actions)),
               torch.from_numpy(np.array(rewards)),
@@ -90,6 +90,8 @@ if __name__ == '__main__':
 
           # Save training information and model parameters
           history.append(np.mean(rewards_plot))
+
+          # Discard data since it is on-policy
           rewards_plot = []
           rewards = []
           crashes = []
@@ -97,6 +99,7 @@ if __name__ == '__main__':
           next_states = []
           actions = []
           masks = []
+
           if episode % 250 == 0:
             agent.save_models(episode, 'Models/PPO/')
             print('Evaluating model..')
@@ -114,7 +117,7 @@ if __name__ == '__main__':
           episode_return = 0
   env.close()
 
-  # Plot the returns
+# ========= Plotting =========
   f = plt.figure()
   plt.plot(history)
   plt.xlabel('Episode')
