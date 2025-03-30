@@ -28,7 +28,7 @@ This project investigates the possibility of using a reinforcement learning agen
 \end{abstract}
 
 \section{Introduction} \label{section:Introduction}
-The highway environment \cite{highway-env} is a simple environment where we can have a variable number of lanes and different number of vehicles. The objective is to give commands to the ego vehicle (the one that is controlled) to avoid crashes and maximize rewards. The rewards are completely controlled by the environment and are normalized between -1 (crash) and 1. Each episode has a maximum duration that is set when the environment is created, so each episode can be truncated if it reaches the maximum duration or it ends with a crash.
+The highway environment \cite{highway-env} is a simple environment where we can have a variable number of lanes and a different number of vehicles. The objective is to give commands to the ego vehicle (the one that is controlled) to avoid crashes and maximize rewards. The rewards are completely controlled by the environment and are normalized between -1 (crash) and 1. Each episode has a maximum duration that is set when the environment is created, so each episode can be truncated if it reaches the maximum duration or ends with a crash.
 
 \section{Baseline}\label{section:Baseline}
 In order to define a good baseline, it was necessary to understand the information provided by the environment \cite{highway-env} through the state. In the documentation, it is explained that the specific environment (highway) uses the kinematics observation format, so in the first row, it gives the absolute information about the ego vehicle while the other rows contain the relative information of the other cars with respect to the ego vehicle.
@@ -46,10 +46,11 @@ All models were tried with different combinations of the hyperparameters in orde
 The three models are three deep RL approaches of increasing complexity; the first one is the simplest one of them, which is Double DQN, and then the Dueling DQN approach is explored. In the end, the state-of-the-art algorithm, the PPO, is run. The DQN base algorithm is not considered because of the problem of overestimating the function approximation.
 
 \subsection{Double Deep-Q-Network} \label{subsection:Double}
-In this approach, we have two networks ($Q$ and $Q'$) and they are used as follows: $Q$ is used to make the prediction, and in order to update it, we minimize the mean squared error between the output and the target that is built as follows:
+In this approach, we have two networks ($Q$ and $Q'$ with the same topology) and they are used as follows: $Q$ is used to make the prediction, and in order to update it, we minimize the mean squared error between the output and the target that is built as follows:
 \begin{equation}\label{eq:target_computation}
     Q^*(s_t,a_t) = R_t + \gamma * Q'(s, argmax_a Q(s_{t+1},a))
 \end{equation}
+The $Q'$ network is updated after $x$ steps by copying the weights from the $Q$ network.
 For an in-depth explanation of the algorithm, look at \cite{DoubleDeepQNetwork}.
 
 \subsection{Dueling Deep-Q-Network} \label{subsection:Duel}
@@ -74,7 +75,7 @@ The Proximal Policy Optimization is an approximation of the Trust Region Policy 
 Where $r_t(\theta)$ indicates the importance sampling ratio. For an in-depth explanation of the algorithm, look at \cite{PPO}.
 
 \section{Training}\label{section:Training}
-The models were trained over 4000 episodes, and from that experience, the batches of (state, action, reward, next\_state) are sampled to train the models. So, given the specific algorithm, the corresponding loss is computed, and then it is backpropagated in order to update the weights of the neural network.
+The models were trained over 4000 episodes, and from that experience, the batches of (state, action, reward, next\_state) are sampled to train the models. So, given the specific algorithm, the corresponding loss is computed, and then it is back-propagated in order to update the weights of the neural network.
 Since the Double DQN and the Dueling DQN use the experience replay, the batches are sampled over all possible data, while since the PPO is an on-policy method, the data are discarded after the finish of each episode.
 The outputs of the different trainings are presented in figures \ref{fig:DQN_reward_training}, \ref{fig:Duel_DQN_reward_training}, \ref{fig:PPO_reward_training}. These figures are created by plotting the average reward that the model gets for each of the 4000 episodes of the training.
 Since the plots are very dense, some other plots are presented to understand how the different models improve during training. An evaluation of the model every 250 episodes of the training is carried out. The evaluation involves running 20 episodes of the model in a new environment for the current model. Then, the plot of the average return and also the average reward of these evaluation steps can be seen in figures \ref{fig:DQN_eval_return_training}, \ref{fig:DQN_eval_reward_training}, \ref{fig:Duel_DQN_eval_reward_training}, \ref{fig:DuelDQN_eval_return_training}, \ref{fig:PPO_eval_return_training}, \ref{fig:PPO_eval_reward_training}.
