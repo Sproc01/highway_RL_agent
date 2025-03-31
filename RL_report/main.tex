@@ -42,7 +42,7 @@ To define a RL agent, 3 different approaches are explored:
     \item Dueling Deep Q-Network (DQN) \cite{DuelDeepQNetwork}
     \item Proximal Policy Optimization (PPO) \cite{PPO}
 \end{itemize}
-All models were tried with different combinations of the hyperparameters in order to find the best performing one.
+All models were tried with different combinations of the hyper-parameters in order to find the best performing one.
 The three models are three deep RL approaches of increasing complexity; the first one is the simplest one of them, which is Double DQN, and then the Dueling DQN approach is explored. In the end, the state-of-the-art algorithm, the PPO, is run. The DQN base algorithm is not considered because of the problem of overestimating the function approximation.
 
 \subsection{Double Deep-Q-Network} \label{subsection:Double}
@@ -50,7 +50,7 @@ In this approach, we have two networks ($Q$ and $Q'$ with the same topology) and
 \begin{equation}\label{eq:target_computation}
     Q^*(s_t,a_t) = R_t + \gamma * Q'(s, argmax_a Q(s_{t+1},a))
 \end{equation}
-The $Q'$ network is updated after $x$ steps by copying the weights from the $Q$ network.
+The $Q'$ network is updated after $x$ training steps by copying the weights from the $Q$ network.
 For an in-depth explanation of the algorithm, look at \cite{DoubleDeepQNetwork}.
 
 \subsection{Dueling Deep-Q-Network} \label{subsection:Duel}
@@ -78,8 +78,8 @@ Where $r_t(\theta)$ indicates the importance sampling ratio. For an in-depth exp
 The models were trained over 4000 episodes, and from that experience, the batches of (state, action, reward, next\_state) are sampled to train the models. So, given the specific algorithm, the corresponding loss is computed, and then it is back-propagated in order to update the weights of the neural network.
 Since the Double DQN and the Dueling DQN use the experience replay, the batches are sampled over all possible data, while since the PPO is an on-policy method, the data are discarded after the finish of each episode.
 The outputs of the different trainings are presented in figures \ref{fig:DQN_reward_training}, \ref{fig:Duel_DQN_reward_training}, \ref{fig:PPO_reward_training}. These figures are created by plotting the average reward that the model gets for each of the 4000 episodes of the training.
-Since the plots are very dense, some other plots are presented to understand how the different models improve during training. An evaluation of the model every 250 episodes of the training is carried out. The evaluation involves running 20 episodes of the model in a new environment for the current model. Then, the plot of the average return and also the average reward of these evaluation steps can be seen in figures \ref{fig:DQN_eval_return_training}, \ref{fig:DQN_eval_reward_training}, \ref{fig:Duel_DQN_eval_reward_training}, \ref{fig:DuelDQN_eval_return_training}, \ref{fig:PPO_eval_return_training}, \ref{fig:PPO_eval_reward_training}.
-From these figures, it seems that the Dueling DQN algorithm and the Double DQN are the ones that learn the most because of a continuous increase in the average return, while the PPO is more oscillating between low and high returns. From the plot of the average reward, it can be seen that the PPO does not change a lot during the training, while the Double DQN and the Dueling DQN seems to learn a lot, but the Dueling DQN reaches a better average reward in the end.
+Since the plots are very dense, some other plots are presented to understand how the different models improve during training. An evaluation of the model every 250 episodes of the training is carried out. The evaluation involves running 20 episodes using the current model in a new environment. Then, the plot of the average return and also the average reward of these evaluation steps can be seen in figures \ref{fig:DQN_eval_return_training}, \ref{fig:DQN_eval_reward_training}, \ref{fig:Duel_DQN_eval_reward_training}, \ref{fig:DuelDQN_eval_return_training}, \ref{fig:PPO_eval_return_training}, \ref{fig:PPO_eval_reward_training}.
+From these figures, it seems that the Dueling DQN algorithm and the Double DQN are the ones that learn the most because of a continuous increase in the average return, while the PPO is more oscillating between low and high returns. From the plot of the average reward, it can be seen that the PPO does not change a lot during the training, while the Double DQN and the Dueling DQN seem to learn a lot, but the Dueling DQN reaches a better average reward in the end.
 
 \begin{figure}
     \centering
@@ -181,14 +181,14 @@ By comparing the Dueling DQN that seems to be the best reinforcement learning ag
 \begin{figure}
     \centering
     \includegraphics[width=0.7\linewidth]{img/Return_over_episode_DQN_4000.pdf}
-    \caption{Return over episode DQN}
+    \caption{Return over episode Double DQN}
     \label{fig:Return_episode_DQN}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=0.7\linewidth]{img/Average_reward_over_episode_DQN_4000.pdf}
-    \caption{Average reward over episode DQN}
+    \caption{Average reward over episode Double DQN}
     \label{fig:Reward_episode_DQN}
 \end{figure}
 
@@ -221,8 +221,8 @@ By comparing the Dueling DQN that seems to be the best reinforcement learning ag
 \end{figure}
 
 \section{Conclusions} \label{section:Conclusions}
-From the three approaches presented, we can see that the Double DQN and the Dueling DQN are the two that perform the best because the PPO has lower returns. Between the Double DQN and the Dueling DQN, the one that seems to work best is the Dueling DQN because it achieves higher returns and highest average rewards.
-By comparing the Dueling DQN with the baseline, we can see that the the model outperformed the specific baseline in terms of returns; and it reaches similar performance compare to the human.
+From the three approaches presented, we can see that the Double DQN and the Dueling DQN are the two that perform the best because the PPO has lower returns. Between the Double DQN and the Dueling DQN, the one that seems to work best is the Dueling DQN because it achieves higher returns and the highest average rewards.
+By comparing the Dueling DQN with the baseline, we can see that the model outperformed the specific baseline in terms of returns, and it reaches similar performance compared to the human.
 
 \bibliography{main}
 \bibliographystyle{icml2021}
