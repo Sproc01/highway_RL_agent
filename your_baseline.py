@@ -14,7 +14,6 @@ def my_baseline(env, state):
     EPSILON_X = 0.2
     EPSILON_Y = 0.009
 
-
     actions = env.unwrapped.get_available_actions()
     state = state[1:, 1:3]
     state_x = state[:, 0]
